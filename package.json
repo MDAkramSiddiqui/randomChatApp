@@ -1,0 +1,25 @@
+{
+  "name": "toruoy",
+  "version": "1.0.0",
+  "description": "allows people to create random accounts and chat to other person",
+  "main": "server.js",
+  "scripts": {
+    "start": "nodemon server.js",
+    "start:prod": "set NODE_ENV=production npm start",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "MD Akram",
+  "license": "ISC",
+  "dependencies": {
+    "@hapi/joi": "^17.1.1",
+    "chalk": "^4.0.0",
+    "cookie-parser": "^1.4.5",
+    "dotenv": "^8.2.0",
+    "express": "^4.17.1",
+    "mongoose": "^5.9.7",
+    "morgan": "^1.10.0",
+    "nodemon": "^2.0.3",
+    "request": "^2.88.2",
+    "request-promise": "^4.2.5"
+  }
+}
