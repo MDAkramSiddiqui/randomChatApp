@@ -4,8 +4,9 @@ const cookieParser = require("cookie-parser");
 
 // const chatRouter = require("./routes/chatRouter");
 // const viewRouter = require("./routes/viewRouter");
-// const randomChatRouter = require("./routes/randomChatRouter");
+const chatRoomRouter = require("./routes/chatRoomRouter");
 const userRouter = require("./routes/userRouter");
+const globalErrorHandler = require("./utils/globalErrorHandler");
 
 const app = express();
 
@@ -23,7 +24,7 @@ app.use((req, res, next) => {
 // app.use("/", viewRouter);
 // app.use("/api/v1/chats", chatRouter);
 app.use("/api/v1/users", userRouter);
-// app.use("/api/v1/randomChat", randomChatRouter);
+app.use("/api/v1/chat-room", chatRoomRouter);
 
 //For handling all the unknown routes
 app.use("*", (req, res, next) => {
@@ -32,5 +33,7 @@ app.use("*", (req, res, next) => {
   res.status(404).json({ status: "failure" });
   // next();
 });
+
+app.use(globalErrorHandler);
 
 module.exports = app;

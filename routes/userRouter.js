@@ -1,15 +1,24 @@
 const router = require("express").Router();
 
-const userHandleController = require("./../controllers/userHandleController");
+const userController = require("../controllers/userController");
 
 const responseBuilder = require("./../utils/responseBuilder");
 
+router.get("/create-handle", userController.createUser);
+router.post("/login", userController.login);
+
+router.use(userController.protect);
+
 router.get(
-  "/createHandle",
-  userHandleController.createHandle,
-  responseBuilder.defaultResponseBuilder
+  "/logout",
+  userController.restrictTo("admin"),
+  userController.logout
 );
-// router.post("/login");
-// router.get("/logout");
+
+router.delete(
+  "/leave",
+  userController.restrictTo("user"),
+  userController.leave
+);
 
 module.exports = router;

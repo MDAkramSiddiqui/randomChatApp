@@ -1,11 +1,17 @@
 const path = require("path");
 const logger = require("./logger");
 
+const scriptName = path.basename(__filename);
+
 class responseBuilder {
   static async defaultResponseBuilder(req, res) {
-    res.status(req.statusCode || 200).json({
+    logger.info(
+      `${scriptName}, defaultResponseBuilder(), { err, req, res, next }`
+    );
+
+    return res.status(req.statusCode || 200).json({
       status: "success",
-      data: req.data,
+      data: res.data,
     });
   }
 }
