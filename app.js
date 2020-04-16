@@ -7,6 +7,9 @@ const cookieParser = require("cookie-parser");
 const chatRoomRouter = require("./routes/chatRoomRouter");
 const userRouter = require("./routes/userRouter");
 const globalErrorHandler = require("./utils/globalErrorHandler");
+const cronJob = require("./cron");
+
+cronJob.removeExpire();
 
 const app = express();
 

@@ -46,9 +46,11 @@ exports.joinRoom = catchAsync(async (req, res, next) => {
     next(new AppError("Please enter a valid ChatRoom handle.", 400));
 
   let usersArr = currentChatRoom.users;
-  usersArr.push(req.user);
-  currentChatRoom.users = usersArr;
-  await currentChatRoom.save();
+  if (usersArr.includes(req.user.id)) {
+    usersArr.push(req.user.id);
+    currentChatRoom.users = usersArr;
+    await currentChatRoom.save();
+  }
 
   res.status(201).json({
     status: "sucess",

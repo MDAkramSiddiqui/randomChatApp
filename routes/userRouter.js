@@ -7,6 +7,8 @@ const responseBuilder = require("./../utils/responseBuilder");
 router.get("/create-handle", userController.createUser);
 router.post("/login", userController.login);
 
+// router.get("/remove-expired", userController.removeExpired);
+
 router.use(userController.protect);
 
 router.get(

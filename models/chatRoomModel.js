@@ -22,6 +22,7 @@ const chatBoxSchema = new Schema({
       ref: "User",
     },
   ],
+  messages: [String],
   createdAt: {
     type: Date,
     default: Date.now(),
@@ -38,6 +39,7 @@ chatBoxSchema.pre(/^find/, function (next) {
     select: "handle",
   }).populate({
     path: "users",
+    select: "handle",
   });
 
   next();

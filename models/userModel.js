@@ -15,6 +15,10 @@ const userSchema = new Schema({
     type: String,
     default: "user",
   },
+  active: {
+    type: Boolean,
+    default: true,
+  },
   createdAt: {
     type: Date,
     default: Date.now(),
@@ -22,7 +26,7 @@ const userSchema = new Schema({
   },
   expiresAt: {
     type: Date,
-    default: Date.now() + 24 * 60 * 60 * 1000,
+    default: Date.now() + 25 * 60 * 60 * 1000,
   },
 });
 
@@ -34,7 +38,14 @@ userSchema.pre("save", async function (next) {
 });
 
 userSchema.methods.checkExpired = function () {
-  return this.expiresAt.getTime() <= Date.now();
+  if (this.expiresAt.getTime() - 15 * 60 * 1000 <= Date.now()) {
+    if (this.active) {
+      this.active = false;
+      this.save();
+    }
+    return true;
+  }
+  return false;
 };
 
 userSchema.methods.checkPassword = function (enteredPassword, userPassword) {

@@ -63,14 +63,20 @@ exports.createUser = catchAsync(async (req, res, next) => {
 exports.leave = catchAsync(async (req, res, next) => {
   logger.debug(`${scriptName}, leave(), { req, res, next }`);
 
-  await User.findByIdAndDelete(req.user.id);
-  await ChatRoom.deleteMany({ owner: req.user.id });
-  //Delete Messages too
+  // await User.findByIdAndDelete(req.user.id);
+  // await ChatRoom.deleteMany({ owner: req.user.id });
+  // //Delete Messages too
+
+  await User.findByIdAndUpdate(req.user.id, {
+    active: false,
+    expiresAt: new Date(Date.now() + 30 * 60 * 1000),
+  });
 
   res.cookie("jwt", "leave-out", {
     expires: new Date(Date.now() + 10 * 1000),
     httpOnly: true,
   });
+
   res.status(200).json({ status: "success" });
 });
 
@@ -182,3 +188,33 @@ exports.protect = catchAsync(async (req, res, next) => {
 
   next();
 });
+
+exports.removeExpired = catchAsync(async () => {
+  logger.debug(`CronJOB, removeExpired(), { res, req, next }`);
+  const currentTime = new Date(Date.now()).toISOString();
+
+  const userRemoved = await User.deleteMany({
+    expiresAt: { $lte: currentTime },
+  });
+
+  const chatRoomsRemoved = await ChatRoom.deleteMany({
+    expiresAt: { $lte: currentTime },
+  });
+
+  console.log(
+    `${userRemoved.n} users removed, ${chatRoomsRemoved.n} ChatRoom removed.`
+  );
+});
+
+// exports.removeExpired = catchAsync(async (req, res, next) => {
+//   logger.info(`${scriptName}, removeExpired(), { res, req, next }`);
+//   const currentTime = new Date(Date.now()).toISOString();
+
+//   const result = await User.deleteMany({
+//     expiresAt: { $lte: currentTime },
+//   });
+//   res.status(200).json({
+//     status: "success",
+//     data: { result },
+//   });
+// });

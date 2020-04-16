@@ -2,9 +2,9 @@ const mongoose = require("mongoose");
 const { Schema } = mongoose;
 
 const chatSchema = new Schema({
-  user: {
+  chatRoom: {
     type: mongoose.Schema.objectId,
-    ref: "User",
+    ref: "ChatRoom",
     unique: true,
   },
   messages: [String],
@@ -12,7 +12,16 @@ const chatSchema = new Schema({
     type: Date,
     default: Date.now(),
   },
+  expiresAt: {
+    type: Date,
+    default: Date.now() + 10 * 60 * 1000,
+  },
 });
+
+//Message Format
+/**
+ * time-/-userid-/-message
+ */
 
 const Chat = mongoose.model("Chat", chatSchema);
 
