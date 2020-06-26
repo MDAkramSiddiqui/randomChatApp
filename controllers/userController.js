@@ -3,6 +3,7 @@ const crypto = require("crypto");
 const requestClient = require("request-promise");
 const jwt = require("jsonwebtoken");
 const { promisify } = require("util");
+const mongoose = require("mongoose");
 
 const logger = require("./../utils/logger");
 const catchAsync = require("./../utils/catchAsync");
@@ -104,7 +105,7 @@ exports.login = catchAsync(async (req, res, next) => {
 exports.logout = catchAsync(async (req, res, next) => {
   logger.debug(`${scriptName}, logout(), { req, res, next }`);
 
-  res.cookie("jwt", "loggedout", {
+  res.cookie("jwt", "logged-out", {
     expires: new Date(Date.now() + 10 * 1000),
     httpOnly: true,
   });
@@ -189,32 +190,30 @@ exports.protect = catchAsync(async (req, res, next) => {
   next();
 });
 
-exports.removeExpired = catchAsync(async () => {
-  logger.debug(`CronJOB, removeExpired(), { res, req, next }`);
-  const currentTime = new Date(Date.now()).toISOString();
+exports.getMyChatRooms = catchAsync(async (req, res, next) => {
+  logger.debug(`${scriptName}, getMyChatRooms(), { req, res, next }`);
 
-  const userRemoved = await User.deleteMany({
-    expiresAt: { $lte: currentTime },
+  const currentUser = await User.findById(req.user.id).populate({
+    path: "chatRooms",
+    select: "expiresAt chatRoomHandle id",
   });
 
-  const chatRoomsRemoved = await ChatRoom.deleteMany({
-    expiresAt: { $lte: currentTime },
+  res.status(201).json({
+    status: "success",
+    data: {
+      rooms: currentUser.chatRooms,
+    },
   });
-
-  console.log(
-    `${userRemoved.n} users removed, ${chatRoomsRemoved.n} ChatRoom removed.`
-  );
 });
 
-// exports.removeExpired = catchAsync(async (req, res, next) => {
-//   logger.info(`${scriptName}, removeExpired(), { res, req, next }`);
-//   const currentTime = new Date(Date.now()).toISOString();
-
-//   const result = await User.deleteMany({
-//     expiresAt: { $lte: currentTime },
-//   });
-//   res.status(200).json({
-//     status: "success",
-//     data: { result },
-//   });
-// });
+exports.getMe = catchAsync(async (req, res, next) => {
+  res.status(201).json({
+    status: "success",
+    data: {
+      user: {
+        handle: req.user.handle,
+        id: req.user.id,
+      },
+    },
+  });
+});

@@ -6,9 +6,13 @@ const responseBuilder = require("./../utils/responseBuilder");
 
 router.use(userController.protect);
 
-router.get("/create-room", chatRoomController.createRoom);
+router.post("/create-room", chatRoomController.createRoom);
 
 router.post("/join-room", chatRoomController.joinRoom);
+
+router.get("/leave/:chatRoomId", chatRoomController.leaveChatRoom);
+
+router.delete("/delete/:chatRoomId", chatRoomController.deleteChatRoom);
 
 router
   .route("/")

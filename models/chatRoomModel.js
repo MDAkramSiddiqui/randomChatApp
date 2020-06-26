@@ -1,7 +1,8 @@
 const mongoose = require("mongoose");
+const bcryptjs = require("bcryptjs");
 const { Schema } = mongoose;
 
-const chatBoxSchema = new Schema({
+const chatRoomSchema = new Schema({
   owner: {
     type: mongoose.Schema.ObjectId,
     ref: "User",
@@ -31,9 +32,13 @@ const chatBoxSchema = new Schema({
     type: Date,
     default: Date.now() + 10 * 60 * 1000,
   },
+  encryptPassword: {
+    type: Boolean,
+    default: true,
+  },
 });
 
-chatBoxSchema.pre(/^find/, function (next) {
+chatRoomSchema.pre(/^find/, function (next) {
   this.populate({
     path: "owner",
     select: "handle",
@@ -45,6 +50,21 @@ chatBoxSchema.pre(/^find/, function (next) {
   next();
 });
 
-const ChatBox = mongoose.model("ChatBox", chatBoxSchema);
+chatRoomSchema.pre("save", async function (next) {
+  if (!this.encryptPassword) return next();
 
-module.exports = ChatBox;
+  this.chatRoomPassword = await bcryptjs.hash(this.chatRoomPassword, 12);
+  this.encryptPassword = false;
+  next();
+});
+
+chatRoomSchema.methods.checkPassword = function (
+  enteredPassword,
+  chatRoomPassword
+) {
+  return bcryptjs.compare(enteredPassword, chatRoomPassword);
+};
+
+const ChatRoom = mongoose.model("ChatRoom", chatRoomSchema);
+
+module.exports = ChatRoom;

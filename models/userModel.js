@@ -28,6 +28,12 @@ const userSchema = new Schema({
     type: Date,
     default: Date.now() + 25 * 60 * 60 * 1000,
   },
+  chatRooms: [
+    {
+      type: mongoose.Schema.ObjectId,
+      ref: "ChatRoom",
+    },
+  ],
 });
 
 userSchema.pre("save", async function (next) {

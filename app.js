@@ -1,8 +1,9 @@
 const express = require("express");
 const morgan = require("morgan");
 const cookieParser = require("cookie-parser");
+const cors = require("cors");
 
-// const chatRouter = require("./routes/chatRouter");
+const chatRouter = require("./routes/chatRouter");
 // const viewRouter = require("./routes/viewRouter");
 const chatRoomRouter = require("./routes/chatRoomRouter");
 const userRouter = require("./routes/userRouter");
@@ -15,6 +16,9 @@ const app = express();
 
 if (process.env.NODE_ENV === "development") app.use(morgan("dev"));
 
+app.use(cors());
+app.options("*", cors());
+
 app.use(express.json({ limit: "10Kb" }));
 app.use(express.urlencoded({ extended: true, limit: "10Kb" }));
 app.use(cookieParser());
@@ -25,7 +29,7 @@ app.use((req, res, next) => {
 });
 
 // app.use("/", viewRouter);
-// app.use("/api/v1/chats", chatRouter);
+app.use("/api/v1/chats", chatRouter);
 app.use("/api/v1/users", userRouter);
 app.use("/api/v1/chat-room", chatRoomRouter);
 
