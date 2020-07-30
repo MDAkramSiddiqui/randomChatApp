@@ -70,10 +70,15 @@ io.on("connection", (socket) => {
 
   socket.on("leaveChatRoom", (room) => {
     socketController.leaveChatRoom(room);
+    socket.leave(room);
   });
 
   socket.on("newMessage", (data) => {
     socketController.postMessage(data);
     socket.broadcast.in(data.chatRoomHandle).emit("newMessage", data.message);
+  });
+
+  socket.on("disconnect", (data) => {
+    console.log("Disconnected", socket.id);
   });
 });
