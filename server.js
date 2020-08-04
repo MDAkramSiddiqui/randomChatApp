@@ -1,17 +1,19 @@
-const socket = require("socket.io");
-const http = require("http");
-const dotenv = require("dotenv");
-dotenv.config({ path: "./config.env" });
+// const http = require('http');
 
-const socketController = require("./controllers/socketController");
-const mongoose = require("mongoose");
-const app = require("./app");
+const dotenv = require('dotenv');
+const mongoose = require('mongoose');
+const logger = require('./utils/logger');
 
-if (process.env.NODE_ENV === "development") {
-  const DB = process.env.DATABASE.replace(
-    "<password>",
-    process.env.DATABASE_PASSWORD
-  ).replace("<database>", process.env.DATABASE_DEV);
+dotenv.config({ path: './config.env' });
+
+const socketController = require('./controllers/socketController');
+const app = require('./app');
+
+if (process.env.NODE_ENV === 'development') {
+  const DB = process.env.DATABASE.replace('<password>', process.env.DATABASE_PASSWORD).replace(
+    '<database>',
+    process.env.DATABASE_DEV,
+  );
   mongoose
     .connect(DB, {
       useUnifiedTopology: true,
@@ -19,13 +21,16 @@ if (process.env.NODE_ENV === "development") {
       useFindAndModify: false,
       useCreateIndex: true,
     })
-    .then((res) => console.log("Connected to Dev Database."))
-    .catch((err) => console.error(err));
-} else if (process.env.NODE_ENV === "production") {
-  const DB = process.env.DATABASE.replace(
-    "<password>",
-    process.env.DATABASE_PASSWORD
-  ).replace("<database>", process.env.DATABASE_PROD);
+    .then(() => {
+      logger.info({ file: 'APP' }, 'Connected to Database');
+      app.emit('initServer');
+    })
+    .catch((err) => logger.error(err));
+} else if (process.env.NODE_ENV === 'production') {
+  const DB = process.env.DATABASE.replace('<password>', process.env.DATABASE_PASSWORD).replace(
+    '<database>',
+    process.env.DATABASE_PROD,
+  );
   mongoose
     .connect(DB, {
       useUnifiedTopology: true,
@@ -33,52 +38,21 @@ if (process.env.NODE_ENV === "development") {
       useFindAndModify: false,
       useCreateIndex: true,
     })
-    .then((res) => console.log("Connected to Prod Database."))
-    .catch((err) => console.error(err));
+    .then(() => {
+      logger.info({ file: 'APP' }, 'Connected to Database');
+      app.emit('initServer');
+    })
+    .catch((err) => logger.info(err));
 } else {
-  console.log("Unknown Environment");
+  logger.info({ file: 'APP' }, 'Unknown Envrionment');
 }
 
 const PORT = process.env.PORT || 8000;
 // const server = http.createServer(app);
-const server = app.listen(PORT, () => {
-  console.log(`Connected to PORT ${PORT}.`);
-});
-
-const io = socket.listen(server);
-
-// io.use((socket, next) => {
-//   next();
-// })
-io.on("connection", (socket) => {
-  // socket.handshake.headers.cookie
-
-  console.log("Connected", socket.id);
-  io.emit("connected", socket.id);
-
-  socket.on("joinRoom", (room) => {
-    socketController.joinRoom(room);
-    socket.join(room);
-    socket.broadcast.in(room).emit("roomJoined", room);
+app.on('initServer', () => {
+  const server = app.listen(PORT, () => {
+    logger.info({ file: 'APP', fn: 'app.listen()', args: 'NONE' }, `Connected to Port: ${PORT}`);
   });
 
-  socket.on("deleteChatRoom", (room) => {
-    socketController.deleteChatRoom(room);
-    // io.emit("customEmit", room);
-    socket.broadcast.in(room).emit("roomDeleted", room);
-  });
-
-  socket.on("leaveChatRoom", (room) => {
-    socketController.leaveChatRoom(room);
-    socket.leave(room);
-  });
-
-  socket.on("newMessage", (data) => {
-    socketController.postMessage(data);
-    socket.broadcast.in(data.chatRoomHandle).emit("newMessage", data.message);
-  });
-
-  socket.on("disconnect", (data) => {
-    console.log("Disconnected", socket.id);
-  });
+  socketController.performSocketConnection(server);
 });

@@ -1,26 +1,27 @@
-const express = require("express");
-const morgan = require("morgan");
-const cookieParser = require("cookie-parser");
-const cors = require("cors");
+const express = require('express');
+const morgan = require('morgan');
+const cookieParser = require('cookie-parser');
+const cors = require('cors');
 
-const chatRouter = require("./routes/chatRouter");
+const chatRouter = require('./routes/chatRouter');
 // const viewRouter = require("./routes/viewRouter");
-const chatRoomRouter = require("./routes/chatRoomRouter");
-const userRouter = require("./routes/userRouter");
-const globalErrorHandler = require("./utils/globalErrorHandler");
-const cronJob = require("./cron");
+const chatRoomRouter = require('./routes/chatRoomRouter');
+const userRouter = require('./routes/userRouter');
+const globalErrorHandler = require('./utils/globalErrorHandler');
+const cronJob = require('./cron');
+const logger = require('./utils/logger');
 
 cronJob.removeExpire();
 
 const app = express();
 
-if (process.env.NODE_ENV === "development") app.use(morgan("dev"));
+if (process.env.NODE_ENV === 'development') app.use(morgan('dev'));
 
 app.use(cors());
-app.options("*", cors());
+app.options('*', cors());
 
-app.use(express.json({ limit: "10Kb" }));
-app.use(express.urlencoded({ extended: true, limit: "10Kb" }));
+app.use(express.json({ limit: '10Kb' }));
+app.use(express.urlencoded({ extended: true, limit: '10Kb' }));
 app.use(cookieParser());
 
 app.use((req, res, next) => {
@@ -29,15 +30,15 @@ app.use((req, res, next) => {
 });
 
 // app.use("/", viewRouter);
-app.use("/api/v1/chats", chatRouter);
-app.use("/api/v1/users", userRouter);
-app.use("/api/v1/chat-room", chatRoomRouter);
+app.use('/api/v1/chats', chatRouter);
+app.use('/api/v1/users', userRouter);
+app.use('/api/v1/chat-room', chatRoomRouter);
 
-//For handling all the unknown routes
-app.use("*", (req, res, next) => {
-  //Later render a page here so that it displays 404 page not found
-  console.log("this page is not found");
-  res.status(404).json({ status: "failure" });
+// For handling all the unknown routes
+app.use('*', (req, res) => {
+  // Later render a page here so that it displays 404 page not found
+  logger.warn({ file: 'App', fn: 'HandlingUnknownRoutes()', args: { msg: 'Unknown route, please check it.' } });
+  res.status(404).json({ status: 'Internal System failure' });
   // next();
 });
 
