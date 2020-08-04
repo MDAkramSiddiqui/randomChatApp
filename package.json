@@ -4,7 +4,8 @@
   "description": "allows people to create random accounts and chat to other person",
   "main": "server.js",
   "scripts": {
-    "start": "nodemon server.js",
+    "start": "node server.js",
+    "dev": "nodemon server.js",
     "start:prod": "NODE_ENV=production npm start",
     "test": "echo \"Error: no test specified\" && exit 1",
     "lint": "eslint . -c .eslintrc.js --ext js --fix --cache",

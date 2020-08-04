@@ -4,7 +4,6 @@ const cookieParser = require('cookie-parser');
 const cors = require('cors');
 
 const chatRouter = require('./routes/chatRouter');
-// const viewRouter = require("./routes/viewRouter");
 const chatRoomRouter = require('./routes/chatRoomRouter');
 const userRouter = require('./routes/userRouter');
 const globalErrorHandler = require('./utils/globalErrorHandler');
@@ -14,9 +13,9 @@ const logger = require('./utils/logger');
 cronJob.removeExpire();
 
 const app = express();
+app.enable('trust proxy');
 
 if (process.env.NODE_ENV === 'development') app.use(morgan('dev'));
-
 
 app.use(cors({ origin: ['http://toruoy.herokuapp.com', 'https://toruoy.herokuapp.com'], optionsSuccessStatus: 200 }));
 app.options('*', cors());

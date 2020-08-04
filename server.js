@@ -1,5 +1,3 @@
-// const http = require('http');
-
 const dotenv = require('dotenv');
 const mongoose = require('mongoose');
 const logger = require('./utils/logger');
@@ -52,6 +50,15 @@ const PORT = process.env.PORT || 8000;
 app.on('initServer', () => {
   const server = app.listen(PORT, () => {
     logger.info({ file: 'APP', fn: 'app.listen()', args: 'NONE' }, `Connected to Port: ${PORT}`);
+  });
+
+  process.on('unhandledRejection', (err) => {
+    logger.error(err);
+    server.close(() => process.exit(1));
+  });
+
+  process.on('SIGTERM', () => {
+    server.close(() => logger.warn('Server Closed, gracefully'));
   });
 
   socketController.performSocketConnection(server);
