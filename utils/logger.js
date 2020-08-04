@@ -1,21 +1,49 @@
-const chalk = require("chalk");
+const pino = require('pino');
+const stringify = require('json-stringify');
+const loggerConfig = require('../config/loggerConfig');
 
-class logger {
-  static debug(val) {
-    if (process.env.NODE_ENV === "development")
-      console.log(chalk.hex("#eae200")(`[DEBUG] ${val}`));
-  }
-  static info(val) {
-    console.log(chalk.hex("#05fd02")(`[INFO] ${val}`));
-  }
-  static warn(val) {
-    console.log(chalk.hex("#ff7f5b")(`[WARN] ${val}`));
-  }
-  static error(val, err) {
-    console.log(chalk.hex("#ff001d")(`[ERROR] ${val}`));
-    if (process.env.NODE_ENV === "development")
-      console.log(chalk.hex("#ff001d")(`--->>> ${err.stack}`));
-  }
+const filterKeys = ['password'];
+
+function initLogger() {
+  return pino({
+    prettyPrint: loggerConfig,
+  });
 }
 
-module.exports = logger;
+// (?<=password:([^.,\]})]*))|(?<=pwd:([^.,\]})]*)) we can use this pattern also which will
+// form a single regex and we can use that regex only once
+function filterMsg(meta) {
+  let filteredMeta = typeof meta === 'object' ? stringify(meta) : meta;
+  let regex = '';
+  const regexCommon = '[^.,\\]}]*';
+  filterKeys.forEach((key) => {
+    regex = `${key}${regexCommon}`;
+    regex = new RegExp(regex, 'gmi');
+    filteredMeta = filteredMeta.replace(regex, `${key}":"**[SECRET]**"`);
+  });
+  return filteredMeta;
+}
+
+const logger = initLogger();
+
+module.exports = {
+  debug(meta, message) {
+    const formattedMsg = `${stringify(message) || ''} ${filterMsg(meta)}`;
+    logger.debug(formattedMsg);
+  },
+
+  info(meta, message) {
+    const formattedMsg = `${stringify(message) || ''} ${filterMsg(meta)}`;
+    logger.info(formattedMsg);
+  },
+
+  warn(meta, message) {
+    const formattedMsg = `${stringify(message) || ''} ${filterMsg(meta)}`;
+    logger.warn(formattedMsg);
+  },
+
+  error(meta, message) {
+    const formattedMsg = `${stringify(message) || ''} ${filterMsg(meta)}`;
+    logger.error(formattedMsg);
+  },
+};

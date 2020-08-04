@@ -1,15 +1,16 @@
-const mongoose = require("mongoose");
+const mongoose = require('mongoose');
+
 const { Schema } = mongoose;
 
 const chatSchema = new Schema({
   chatRoomId: {
     type: mongoose.Schema.ObjectId,
-    ref: "ChatRoom",
+    ref: 'ChatRoom',
   },
   chatRoomHandle: String,
   userId: {
     type: mongoose.Schema.ObjectId,
-    ref: "User",
+    ref: 'User',
   },
   userHandle: String,
   message: String,
@@ -22,11 +23,11 @@ const chatSchema = new Schema({
   },
 });
 
-//Message Format
+// Message Format
 /**
  * time-/-userid-/-message
  */
 
-const Chat = mongoose.model("Chat", chatSchema);
+const Chat = mongoose.model('Chat', chatSchema);
 
 module.exports = Chat;
