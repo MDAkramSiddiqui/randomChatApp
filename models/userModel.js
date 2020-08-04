@@ -1,11 +1,12 @@
-const bcryptjs = require("bcryptjs");
-const mongoose = require("mongoose");
+const bcryptjs = require('bcryptjs');
+const mongoose = require('mongoose');
+
 const { Schema } = mongoose;
 
 const userSchema = new Schema({
   handle: {
     type: String,
-    required: [true, "User name is required"],
+    required: [true, 'User name is required'],
   },
   password: {
     type: String,
@@ -13,7 +14,7 @@ const userSchema = new Schema({
   },
   role: {
     type: String,
-    default: "user",
+    default: 'user',
   },
   active: {
     type: Boolean,
@@ -31,12 +32,12 @@ const userSchema = new Schema({
   chatRooms: [
     {
       type: mongoose.Schema.ObjectId,
-      ref: "ChatRoom",
+      ref: 'ChatRoom',
     },
   ],
 });
 
-userSchema.pre("save", async function (next) {
+userSchema.pre('save', async function (next) {
   if (this.password) {
     this.password = await bcryptjs.hash(this.password, 12);
   }
@@ -58,6 +59,6 @@ userSchema.methods.checkPassword = function (enteredPassword, userPassword) {
   return bcryptjs.compare(enteredPassword, userPassword);
 };
 
-const User = mongoose.model("User", userSchema);
+const User = mongoose.model('User', userSchema);
 
 module.exports = User;

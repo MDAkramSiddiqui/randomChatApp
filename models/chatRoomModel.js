@@ -1,26 +1,27 @@
-const mongoose = require("mongoose");
-const bcryptjs = require("bcryptjs");
+const mongoose = require('mongoose');
+const bcryptjs = require('bcryptjs');
+
 const { Schema } = mongoose;
 
 const chatRoomSchema = new Schema({
   owner: {
     type: mongoose.Schema.ObjectId,
-    ref: "User",
-    required: [true, "Review must belong to a user"],
+    ref: 'User',
+    required: [true, 'Review must belong to a user'],
   },
   chatRoomHandle: {
     type: String,
-    required: [true, "Chat Room handle is required."],
+    required: [true, 'Chat Room handle is required.'],
     unique: true,
   },
   chatRoomPassword: {
     type: String,
-    required: [true, "Chat Room Password is required."],
+    required: [true, 'Chat Room Password is required.'],
   },
   users: [
     {
       type: mongoose.Schema.ObjectId,
-      ref: "User",
+      ref: 'User',
     },
   ],
   messages: [String],
@@ -40,17 +41,17 @@ const chatRoomSchema = new Schema({
 
 chatRoomSchema.pre(/^find/, function (next) {
   this.populate({
-    path: "owner",
-    select: "handle",
+    path: 'owner',
+    select: 'handle',
   }).populate({
-    path: "users",
-    select: "handle",
+    path: 'users',
+    select: 'handle',
   });
 
   next();
 });
-
-chatRoomSchema.pre("save", async function (next) {
+// eslint-disable-next-line
+chatRoomSchema.pre('save', async function (next) {
   if (!this.encryptPassword) return next();
 
   this.chatRoomPassword = await bcryptjs.hash(this.chatRoomPassword, 12);
@@ -58,13 +59,10 @@ chatRoomSchema.pre("save", async function (next) {
   next();
 });
 
-chatRoomSchema.methods.checkPassword = function (
-  enteredPassword,
-  chatRoomPassword
-) {
+chatRoomSchema.methods.checkPassword = function (enteredPassword, chatRoomPassword) {
   return bcryptjs.compare(enteredPassword, chatRoomPassword);
 };
 
-const ChatRoom = mongoose.model("ChatRoom", chatRoomSchema);
+const ChatRoom = mongoose.model('ChatRoom', chatRoomSchema);
 
 module.exports = ChatRoom;

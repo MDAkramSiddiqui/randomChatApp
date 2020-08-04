@@ -1,31 +1,21 @@
-const router = require("express").Router();
+const router = require('express').Router();
 
-const userController = require("../controllers/userController");
+const userController = require('../controllers/userController');
 
-const responseBuilder = require("./../utils/responseBuilder");
+router.get('/create-handle', userController.createUser);
 
-router.get("/create-handle", userController.createUser);
-
-//only admin knows this route
-router.post("/login", userController.login);
+// only admin knows this route
+router.post('/login', userController.login);
 
 // router.get("/remove-expired", userController.removeExpired);
 
 router.use(userController.protect);
 
-router.get("/my-chatrooms", userController.getMyChatRooms);
-router.get("/me", userController.getMe);
+router.get('/my-chatrooms', userController.getMyChatRooms);
+router.get('/me', userController.getMe);
 
-router.delete(
-  "/leave",
-  userController.restrictTo("user"),
-  userController.leave
-);
+router.delete('/leave', userController.restrictTo('user'), userController.leave);
 
-router.get(
-  "/logout",
-  userController.restrictTo("admin"),
-  userController.logout
-);
+router.get('/logout', userController.restrictTo('admin'), userController.logout);
 
 module.exports = router;
