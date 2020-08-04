@@ -17,6 +17,7 @@ const app = express();
 
 if (process.env.NODE_ENV === 'development') app.use(morgan('dev'));
 
+
 app.use(cors({ origin: ['http://toruoy.herokuapp.com', 'https://toruoy.herokuapp.com'], optionsSuccessStatus: 200 }));
 app.options('*', cors());
 
