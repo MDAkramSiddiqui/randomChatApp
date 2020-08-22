@@ -8,7 +8,7 @@
     "dev": "nodemon server.js",
     "start:prod": "NODE_ENV=production npm start",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "lint": "eslint . -c .eslintrc.js --ext js --fix --cache",
+    "lint": "eslint . -c .eslintrc.js --ext js --cache",
     "format": "prettier --write .",
     "debug": "npm start --debug --watch"
   },
