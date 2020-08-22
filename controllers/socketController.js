@@ -11,19 +11,19 @@ const scriptName = path.basename(__filename);
 
 exports.performSocketConnection = (server) => {
   logger.info({ file: scriptName, fn: 'performSocketConnection()', args: 'SERVER' });
-  let allowSocketConnection = false;
+  let allowSocketConnection = true;
   const io = socketio.listen(server);
   io.on(
     'connection',
     catchAsync(async (socket) => {
       const TOKEN_REGEX = /(?<=Bearer%20)[^ ,;\]})]*/g;
-      const jwtToken = TOKEN_REGEX.exec(socket.handshake.headers.cookie);
-      // console.log(socket.handshake.headers, '\n', jwtToken[0]);
-      if (jwtToken) {
-        const decoded = await promisify(jwt.verify)(jwtToken[0], process.env.JWT_SECRET);
-        const currentUser = await User.findById(decoded.id);
-        if (currentUser) allowSocketConnection = true;
-      }
+      // const jwtToken = TOKEN_REGEX.exec(socket.handshake.headers.cookie);
+      console.log(socket.handshake.headers, '\n', TOKEN_REGEX);
+      // if (jwtToken) {
+      //   const decoded = await promisify(jwt.verify)(jwtToken[0], process.env.JWT_SECRET);
+      //   const currentUser = await User.findById(decoded.id);
+      //   if (currentUser) allowSocketConnection = true;
+      // }
 
       if (allowSocketConnection) {
         logger.info(
